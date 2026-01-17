@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>Timify - Collaborative Sanctuary</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+tailwind.config = {
+    darkMode: "class",
+    theme: {
+        extend: {
+            colors: {
+                "warm-beige": "#fdfaf6",
+                "warm-gray": "#f2eee9",
+                "academic-ink": "#2d3436",
+                "timify-sepia": "#7c6a58",
+                "timify-gold": "#c5a059",
+                "primary": "#4a6741",
+                "parchment": "#f4f1ea",
+                "parchment-dark": "#e8e4d9",
+                "paper": "#fdfcf9",
+                "ink": "#2c2c2c",
+                "sage-green": "#e3e8de",
+                "dusty-blue": "#dfe6eb",
+                "warm-off-white": "#f9f8f4",
+                "accent-amber": "#b45309",
+                "warm-paper": "#f7f5f0",
+                "warm-accent": "#e8e4d9",
+                "notepad-ink": "#2d2d2d",
+                "primary-clay": "#a67c52",
+                "soft-border": "rgba(0,0,0,0.08)",
+                "cream": "#FDFCF8",
+                "charcoal": "#1A1A1A",
+                "accent-sage": "#8E9B8E",
+                "accent-rose": "#C49B9B",
+                "accent-gold": "#B89C6D"
+            },
+            fontFamily: {
+                "serif": ["Montserrat", "serif"],
+                "sans": ["Montserrat", "sans-serif"],
+                "display": ["Montserrat", "sans-serif"],
+                "serif-alt": ["Montserrat", "serif"]
+            },
+            borderRadius: {
+                "DEFAULT": "0.25rem",
+                "lg": "0.5rem",
+                "xl": "0.75rem",
+                "full": "9999px"
+            }
+        },
+    },
+}
+</script>
+<style type="text/tailwindcss">
+:root {
+    --grain: url("https://www.transparenttextures.com/patterns/paper-fibers.png");
+    --noise-opacity: 0.05;
+}
+.grainy-bg {
+    background-color: #fdfaf6;
+    background-image: var(--grain);
+}
+.paper-card {
+    background-color: rgba(255, 255, 255, 0.4);
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(124, 106, 88, 0.15);
+}
+.academic-button {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.academic-button:active {
+    transform: scale(0.98);
+    background-color: #f2eee9;
+}
+.grainy-texture {
+    position: relative;
+}
+.grainy-texture::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 50;
+    opacity: var(--noise-opacity);
+}
+.notepad-line {
+    background-image: linear-gradient(rgba(0, 0, 0, 0.05) 1px, transparent 1px);
+    background-size: 100% 2rem;
+}
+.custom-scrollbar::-webkit-scrollbar {
+    width: 3px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+}
+.ios-blur {
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+}
+.hide-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+.hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+.physical-card {
+    background-color: #fdfcf9;
+    box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    border: 1px solid rgba(0, 0, 0, 0.03);
+    transition: transform 0.2s ease;
+}
+.physical-card:active {
+    transform: scale(0.98);
+}
+.material-symbols-outlined {
+    font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+}
+.ios-tab-blur {
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    background-color: rgba(253, 252, 248, 0.85);
+}
+body {
+    min-height: max(884px, 100dvh);
+    font-family: "Montserrat", sans-serif;
+}
+.app-container {
+    max-width: 430px;
+    margin: 0 auto;
+    min-height: 100dvh;
+    background-color: var(--cream);
+    position: relative;
+    overflow-x: hidden;
+    overflow-y: auto;
+    box-shadow: 0 0 50px rgba(0,0,0,0.1);
+}
+.page {
+    display: none;
+    min-height: calc(100dvh - 80px);
+    animation: fadeIn 0.3s ease;
+}
+.page.active {
+    display: block;
+}
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 430px;
+    background: rgba(253, 252, 248, 0.9);
+    backdrop-filter: blur(20px);
+    border-top: 1px solid rgba(0,0,0,0.08);
+    padding: 12px 24px 28px;
+    display: flex;
+    justify-content: space-around;
+    z-index: 100;
+}
+.nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    opacity: 0.4;
+    transition: all 0.2s;
+    cursor: pointer;
+}
+.nav-item.active {
+    opacity: 1;
+}
+.nav-item.active .nav-icon {
+    color: #4a6741;
+}
+.nav-item.active .nav-label {
+    color: #4a6741;
+}
+.nav-icon {
+    font-size: 24px;
+}
+.nav-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+.floating-btn {
+    position: fixed;
+    bottom: 100px;
+    right: 24px;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: #4a6741;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 20px rgba(74, 103, 65, 0.4);
+    z-index: 50;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+.floating-btn:active {
+    transform: scale(0.95);
+}
+.floating-btn span {
+    font-size: 28px;
+}
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+.no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+textarea {
+    field-sizing: content;
+}
+.message-shadow {
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+.grainy-overlay {
+    position: relative;
+}
+.grainy-overlay::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    opacity: 0.4;
+    background-image: url(https://lh3.googleusercontent.com/aida-public/AB6AXuDpu3Tn0mC5PhrUUkjIaic_qt_7Nv44VAjugEMKryTpA-DLF1gAq-8igpfIw2Zs1eNE_YibuAbv29WYf6Ir0_83YFLW1ub9Y0Bp_Cu5neuopPx0ptKO_4Ut21_b16LOS_yzL669W6_JTB4MdpTrLmIzRWYV2yoaSYtIHnqzf17D77navTizzbnrBxHMxm61GGQ25RdJAjcD4cKg31lVghcIbnxNNYwi2ne6DHvXZWGjHXMOPcPe3f9XGnOzYyiUiAljKtgTZz6i4UU);
+    z-index: 10;
+}
+.serif {
+    font-family: "Montserrat", serif;
+}
+.grainy-panel {
+    background-color: #fff;
+    border: 1px solid rgba(26, 26, 26, 0.08);
+    box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.02);
+}
+.dark-panel {
+    background-color: var(--charcoal);
+    color: var(--cream);
+}
+.message-bubble {
+    max-width: 75%;
+    padding: 10px 16px;
+    border-radius: 18px;
+    font-size: 14px;
+    line-height: 1.5;
+}
+.message-bubble.sent {
+    background-color: #e3e8de;
+    border-bottom-right-radius: 4px;
+    margin-left: auto;
+}
+.message-bubble.received {
+    background-color: #e3e8de;
+    border-bottom-left-radius: 4px;
+}
+.typing-indicator {
+    display: flex;
+    gap: 4px;
+    padding: 8px 0;
+}
+.typing-indicator span {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #a67c52;
+    animation: typing 1.4s infinite;
+}
+.typing-indicator span:nth-child(2) {
+    animation-delay: 0.2s;
+}
+.typing-indicator span:nth-child(3) {
+    animation-delay: 0.4s;
+}
+@keyframes typing {
+    0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+    30% { transform: translateY(-8px); opacity: 1; }
+}
+</style>
+</head>
+<body class="bg-gray-100">
+<div class="app-container">
+<div id="welcome-page" class="page active grainy-bg font-sans text-academic-ink min-h-screen flex flex-col overflow-x-hidden">
+<div class="flex items-center p-6 justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-timify-sepia text-2xl">menu_book</span>
+<h2 class="text-timify-sepia text-sm font-semibold tracking-[0.2em] uppercase">Timify</h2>
+</div>
+<button class="w-10 h-10 flex items-center justify-center rounded-full bg-warm-gray/50 border border-warm-gray">
+<span class="material-symbols-outlined text-timify-sepia text-xl">help</span>
+</button>
+</div>
+<div class="flex-1 flex flex-col justify-center px-8 pb-12">
+<div class="mb-14 text-center">
+<div class="inline-flex items-center justify-center w-24 h-24 mb-8 relative">
+<div class="absolute inset-0 border border-timify-sepia/20 rounded-full rotate-45"></div>
+<div class="absolute inset-0 border border-timify-gold/30 rounded-full -rotate-12"></div>
+<span class="material-symbols-outlined text-timify-sepia text-5xl">school</span>
+</div>
+<h1 class="font-serif italic text-4xl font-semibold text-academic-ink leading-tight mb-4">Welcome to Timify</h1>
+<p class="text-timify-sepia text-base font-normal leading-relaxed max-w-[280px] mx-auto opacity-80">A collaborative sanctuary for global competition participants and international scholars.</p>
+</div>
+<div class="w-full max-w-sm mx-auto space-y-3">
+<button onclick="switchPage('teams')" class="academic-button flex w-full items-center justify-center gap-3 rounded-xl h-14 px-5 paper-card text-academic-ink text-base font-medium shadow-sm">
+<svg class="w-5 h-5" viewBox="0 0 24 24">
+<path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"></path>
+<path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"></path>
+<path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"></path>
+<path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"></path>
+</svg>
+<span>Continue with Google</span>
+</button>
+<button class="academic-button flex w-full items-center justify-center gap-3 rounded-xl h-14 px-5 bg-academic-ink text-warm-beige text-base font-medium shadow-md">
+<svg class="w-5 h-5 fill-current" viewBox="0 0 24 24">
+<path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"></path>
+</svg>
+<span>Access with GitHub</span>
+</button>
+<div class="flex items-center py-6 px-4">
+<div class="flex-grow border-t border-timify-sepia/20"></div>
+<span class="flex-shrink mx-4 text-timify-sepia/40 font-serif italic text-sm">or</span>
+<div class="flex-grow border-t border-timify-sepia/20"></div>
+</div>
+<button onclick="switchPage('teams')" class="academic-button flex w-full items-center justify-center gap-2 rounded-xl h-14 px-5 border border-timify-sepia/30 text-timify-sepia text-base font-medium">
+<span class="material-symbols-outlined text-xl">history_edu</span>
+<span>Sign in with Email</span>
+</button>
+</div>
+</div>
+<div class="fixed top-0 left-0 w-full h-full pointer-events-none opacity-40 z-[-1]">
+<div class="absolute top-[-10%] left-[-20%] w-[80%] h-[50%] rounded-full bg-timify-gold/5 blur-[120px]"></div>
+<div class="absolute bottom-[5%] right-[-10%] w-[60%] h-[40%] rounded-full bg-timify-sepia/5 blur-[100px]"></div>
+</div>
+<footer class="p-8 text-center mt-auto">
+<p class="text-timify-sepia/60 text-xs leading-relaxed px-10 font-medium">By engaging with Timify, you honor our <a class="text-timify-sepia underline decoration-timify-gold/40 underline-offset-4" href="#">Charters</a> and <a class="text-timify-sepia underline decoration-timify-gold/40 underline-offset-4" href="#">Privacy Covenant</a>.</p>
+<div class="h-4"></div>
+</footer>
+</div>
+
+<div id="teams-page" class="page grainy-bg font-display text-ink">
+<div class="relative flex h-screen max-w-[480px] mx-auto flex-col overflow-hidden grainy-bg">
+<header class="flex items-center p-6 pt-8 pb-4 justify-between sticky top-0 z-20 grainy-bg/95 backdrop-blur-sm">
+<div class="flex size-10 shrink-0 items-center overflow-hidden rounded-full border-2 border-primary/20 shadow-sm">
+<div class="bg-center bg-no-repeat aspect-square bg-cover size-full" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBBLB9vn2knqQuDcdaUjAJlMaVs9W4tIEztE6rtwnKFMCMiyQPzRSi_GJ9ndXH__l4p0CiL-Ocf6VKRKItvp34w9CFNKPZsuSkAWdMaKYmOtNtSGD7EDGL1lShItNuf7Fgqvv_H2IUIdUOVfCnpULL8sbtFr3zvifMRTyIG52OEo7OG6s7ijULWyCieUBnY50R8PlT1RtmdsJ6fGL2cLWlRhRzRsYdvWEaRSbuPrg4qYusWhh6rPHl_2tQrMwi0JocHV6v0-0O09RI");'></div>
+</div>
+<h1 class="text-ink text-2xl font-serif font-semibold italic tracking-tight flex-1 text-center">My Teams</h1>
+<div class="flex w-10 items-center justify-end">
+<button class="flex items-center justify-center rounded-full h-10 w-10 text-ink hover:bg-black/5 transition-colors">
+<span class="material-symbols-outlined">search</span>
+</button>
+</div>
+</header>
+<main class="flex-1 overflow-y-auto pb-32 hide-scrollbar">
+<div class="flex gap-3 p-6 pt-2 overflow-x-auto hide-scrollbar">
+<div class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-full bg-primary px-5 text-white shadow-md shadow-primary/20">
+<p class="text-xs font-bold uppercase tracking-wider">All</p>
+</div>
+<div class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-full bg-parch-dark/10 border border-black/5 px-5 text-ink/70">
+<p class="text-xs font-bold uppercase tracking-wider">Active</p>
+</div>
+<div class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-full bg-parch-dark/10 border border-black/5 px-5 text-ink/70">
+<p class="text-xs font-bold uppercase tracking-wider">History</p>
+</div>
+</div>
+<div class="px-6 space-y-6">
+<div class="flex flex-col overflow-hidden rounded-lg physical-card grainy-overlay">
+<div class="h-32 w-full bg-center bg-no-repeat bg-cover grayscale-[0.2] opacity-90" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAuFQGDCzmN5e_lGQVEsPJ3W_4FEHtsgn5zxCK3n8eh0AsY7uQxMt47AfHhy1psvr-LZzHdpKRM8x4QCZcC2_gTJgzcVUCuFb9KuaUZ-tTLAnenmCFLkVvZbUyzbT0_PPtznR4-USukwO2U1_61u1qKd3OKKy-EuguCR0cMLWutrhoaP21Ti5O5uar4bhwgHXosOHpXu43uZRqJAoAEm5EiedzvMlZ08xDr9u1zjWQzDT7nl29UpCkb6Sg7Yc3MPfktZ0V57WRawpo");'>
+<div class="w-full h-full bg-gradient-to-t from-parchment/80 to-transparent p-4 flex items-end">
+<span class="bg-primary/90 text-white text-[9px] uppercase font-black tracking-widest px-2 py-0.5 rounded-sm">Business Case</span>
+</div>
+</div>
+<div class="flex flex-col p-5 gap-4">
+<div class="flex justify-between items-start">
+<div>
+<h3 class="text-ink text-xl font-serif font-bold leading-tight">Team Alpha</h3>
+<p class="text-ink/60 text-sm font-medium">Global Business Challenge</p>
+</div>
+<div class="text-right">
+<p class="text-ink/40 text-[9px] uppercase font-bold tracking-widest">Next Due</p>
+<p class="text-ink text-sm font-bold">2d 14h</p>
+</div>
+</div>
+<div class="flex items-center justify-between border-t border-black/5 pt-4">
+<div class="flex -space-x-2 overflow-hidden">
+<img alt="" class="inline-block h-8 w-8 rounded-full ring-2 ring-paper" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBCjgYiM7aCuaT0-iuNVePUtJluLTTcs_L9MdIV8_pvZcrI9AylNko16JZY3FjlYOfibUjp2IZVkK-dgnuJwhucs-isciQA2VneHiFf7aWddcGrvfIosVrpEuJyZ-b4pqnP6cQyo1p2rxsg_xRWHXioPIN4ubjdSSbAwJxpzlxQ4cskETqWkbPRA5NuDCRODYguDXz3bqWw86xze87gF4YaVBleXXeq9T1XeUDPw0Uwg4D4W-ZaW22zN4s16jqyDryy8tNJZjuUtHY"/>
+<img alt="" class="inline-block h-8 w-8 rounded-full ring-2 ring-paper" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAUAZIG_dScEHn8BfI3A_7AgGRMrRwchnn9Qdv9vvGLCIv1SniUpupMaSL08OgFQvyE1fODH99YpBl_X69rGcKOdklkMCm1MbwLFi8fay-nRLwEbgIg4g3ST-iASbkTImHc0jgsElkmQI938CCVN3E8_JNkqHvp1pAmy9PcaB4OSQX5wrYOLClvCCZkJYf97T5GC_GFqSuCy9msMI6Ru1AZ247MxFyJZoTv57cDL3b4Mn2u73F8IJnYyPGdVlKzPcHa9DisQDDg8-o"/>
+<img alt="" class="inline-block h-8 w-8 rounded-full ring-2 ring-paper" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDABriSwsQ-mDHz6yLb6WWnrnyqoeLFmB0kXTFxf35gYdUiZuPwiL8w3LwQ4eYmo13QubpcOoIJz7Dk21x31Vx0V_CrmsxqTPOW_Gyk1hZ1EbZw4fZdxsse1w4BNvLhHoqjiS7a35hxCQ-iEKB22djrzOWyfETXkqoOw0T7RtR9Jrlj2wzVqMedA9tqkvo2mSIwHPQrBh_oE_o4QeYSZh6zM21EDVcm-eJBUdYTwsKJ6VnsR7sZKZN6DkhELfCB9DiS59qI242beyE"/>
+<div class="flex items-center justify-center h-8 w-8 rounded-full ring-2 ring-paper bg-parchment-dark text-[10px] font-bold text-ink/60">+2</div>
+</div>
+<button onclick="switchPage('chat')" class="flex items-center justify-center gap-1.5 rounded-full h-8 px-4 bg-primary/5 text-primary border border-primary/10 text-[10px] font-bold uppercase tracking-wide">
+<span class="material-symbols-outlined text-sm">chat_bubble</span>
+<span>5 UNREAD</span>
+</button>
+</div>
+</div>
+</div>
+<div class="flex flex-col overflow-hidden rounded-lg physical-card grainy-overlay border-l-4 border-l-orange-800/40">
+<div class="h-32 w-full bg-center bg-no-repeat bg-cover grayscale-[0.4] opacity-80" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCdKlETP823U0qthoECeV89VaOzfwXoFYKwzrn2Arb7XQ0pu1UGxx34Rag1cT3qQeoOuBdzV3aNwHiiG46QjJZs5g2lkhOl6KyHrvjQRXFJeRXlhxfAzNtzCH-NyEBvVBHhuyl0IVkKQRhRdT9yN4lfio4Zy0hWiAerEGygAZvzUinTKzGXki5nuUYvMuQ-FIU-bLh-bHBSCJ1XeQdjB6YLELnd4QAuzxiim_5GoTdLZa5szRTrwBRTY-Aa2irdk1z8NRTJz81Te4M");'>
+<div class="w-full h-full bg-gradient-to-t from-parchment/80 to-transparent p-4 flex items-end">
+<span class="bg-orange-900/80 text-white text-[9px] uppercase font-black tracking-widest px-2 py-0.5 rounded-sm">CS / Space Tech</span>
+</div>
+</div>
+<div class="flex flex-col p-5 gap-4">
+<div class="flex justify-between items-start">
+<div>
+<h3 class="text-ink text-xl font-serif font-bold leading-tight">Code-X</h3>
+<p class="text-ink/60 text-sm font-medium">NASA Space Apps</p>
+</div>
+<div class="text-right">
+<p class="text-orange-900/60 text-[9px] uppercase font-bold tracking-widest">Critical</p>
+<p class="text-orange-900 text-sm font-black">4h 12m</p>
+</div>
+</div>
+<div class="flex items-center justify-between border-t border-black/5 pt-4">
+<div class="flex -space-x-2 overflow-hidden">
+<img alt="" class="inline-block h-8 w-8 rounded-full ring-2 ring-paper" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBinoSi9F_2hT2F2KoIsrrEEShr3z-_BQsb0KZQ7_1oxOZPJYvjVfw0yig2SlmBs9Op4px8JQU1KNkbB2-Ecpr7mVbe_p7LddhN64K1dB-x8RqqTgwikpkQ96cq3jM8Z-_5lK7MZ4LfupECgCi-wWxTYtVohDN8HPCxboYXwpzQqAggNm2fW_qcDwPXneYcjedPe64IZV55zZVrpXLUiVAaAqdYXEVh5rE_poC26YVgbLVq_Prmeu3RlmSMm4xpWved4CzWsRTFRYI"/>
+<img alt="" class="inline-block h-8 w-8 rounded-full ring-2 ring-paper" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCfW3iIiHLbOhKpBciWqdD5a97huwvCMe55ZlpHlBP7RndXIYVue5jaK4H9GpdTMa-TLPbYgQGJJfDZtI03HVW4fzjJWhsWgIvx_yaF8uZnRWbrbl1h1laJWG3M_bSWVWAwN3xQiPjDRf4-HCXE68WoO8ig_5zNOMcZysULmBODQGMizDYtU30u4MTTLg3MP58wqnlGIZufO3LGrwQ7E9bwbp0yGZTM1KaDBH7VwPl8wjmL4BbrIwlKbQK2lDeUudglWgUstGGbiM8"/>
+</div>
+<button class="flex items-center justify-center gap-1.5 rounded-full h-8 px-4 bg-orange-900 text-white shadow-lg shadow-orange-900/20 text-[10px] font-bold uppercase tracking-wide">
+<span class="material-symbols-outlined text-sm">mark_chat_unread</span>
+<span>12 MESSAGES</span>
+</button>
+</div>
+</div>
+</div>
+<div class="flex flex-col overflow-hidden rounded-lg physical-card grainy-overlay">
+<div class="h-32 w-full bg-center bg-no-repeat bg-cover grayscale-[0.3]" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuColRFxpS8M0i3h_EYYjvQAQiN8hjS7VL6S9I-g6KrMe9ofk9s5JL372-vDPnbdsbOEN9xKCZkHSFFtD031nwPC1hxc6EfJc3jXxmxg32BpocOyIJs0kOBGfD8OkzkDEtz2cypewZBYZv3AxexlndG_Gsap4Edx-syPJkqXSj8_3YwymahlY5dFYnkEb7nf04LcPcBXwvpuoZCxZtfsKKx7aSRLsFsX1_eLPRLi3e6jGEu8v0ku_YWmgPQCQJxk8VOm0HF9JwAmGcc");'>
+<div class="w-full h-full bg-gradient-to-t from-parchment/80 to-transparent p-4 flex items-end">
+<span class="bg-primary/90 text-white text-[9px] uppercase font-black tracking-widest px-2 py-0.5 rounded-sm">Social Impact</span>
+</div>
+</div>
+<div class="flex flex-col p-5 gap-4">
+<div class="flex justify-between items-start">
+<div>
+<h3 class="text-ink text-xl font-serif font-bold leading-tight">Innovate-ED</h3>
+<p class="text-ink/60 text-sm font-medium">Hult Prize</p>
+</div>
+<div class="text-right">
+<p class="text-ink/40 text-[9px] uppercase font-bold tracking-widest">Next Due</p>
+<p class="text-ink text-sm font-bold">12d 0h</p>
+</div>
+</div>
+<div class="flex items-center justify-between border-t border-black/5 pt-4">
+<div class="flex -space-x-2 overflow-hidden">
+<img alt="" class="inline-block h-8 w-8 rounded-full ring-2 ring-paper" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBUdpv8-Zj4C6gQgEetQ2YSTd3QIYwcpwsBT4S3R_Sp1-oEHyrb1OEI-xvZqDfXgJFvyJALCENypYP2K6ScgnYX7Xvmv54Pp7WsQehCxvcL5yRZvPrEAqz0HTRaEO0iTGxoklo8lemwvbgh3n-ACcRGg7A3Z9EF7I_2Onv83y_sdqNMQmvzVzWnozGy6KIuA9meoJ-mFeauVKzRXl3CWzFwauYNDPhyv4xPxw8CIqYXtQrMa11S8Fm6jEBiOgmFTWN0l_jpfKaw6JI"/>
+<img alt="" class="inline-block h-8 w-8 rounded-full ring-2 ring-paper" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCNBeqhcAGy0rC7SAHnjDTTOc9wy77VMxqVfEIPcnJXPSElmGkGQUbc-lhOWEW6j7uQYzu3KtlTzTkrAG6XFKUVhC0VZXqaRImNrA2i7ZiDicNBWdLUbTQ9jvJO1-K-C58_MzIGZA-CFOtgi_uz5FFXL6C0frhacwOR6B962RJl3dl3fmS-W6MSkXyzZ2jREnf4xtglksbDM6TTswKjB_q0iKBKjGoQiL0BX0CXuypOYMMki6HdBPDYCJ3GsGiE8OkiLqbHTQKvW-o"/>
+<img alt="" class="inline-block h-8 w-8 rounded-full ring-2 ring-paper" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDGoCiIcsocIPAv6LdTjwq9R9lh9KDP0eHIxs80FgRT07MJWkXsXb9LwVt52efRmFoCx5fqX5W4Xqrf6eOrnAB9BjymlKfiaYanOFilaPKbk_rKY4RpHQa-exvqbIW13tVAOdtdn6L3w-byzNZfnWIbRxLsWNck5QrytsPjqgV5HlGiLTiELpFxGjFaAaktZxN-IPXTbuwdF-zCtRcSed5G-SqewRQAweERs9EuWie5xpVbn1gfB83FVJqc9hwFCf1peEBcf_g_dOU"/>
+</div>
+<button class="flex items-center justify-center gap-1.5 rounded-full h-8 px-4 bg-parchment-dark/30 text-ink/40 text-[10px] font-bold uppercase tracking-wide">
+<span class="material-symbols-outlined text-sm">check_circle</span>
+<span>ALL CLEAR</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</main>
+<button class="fixed bottom-28 right-6 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-white shadow-xl shadow-primary/30 active:scale-95 transition-all z-30">
+<span class="material-symbols-outlined text-3xl font-light">add</span>
+</button>
+</div>
+</div>
+
+<div id="chat-page" class="page bg-warm-off-white font-display text-slate-800 min-h-screen flex flex-col max-w-[430px] mx-auto border-x border-slate-200 shadow-2xl relative">
+<header class="sticky top-0 z-30 bg-warm-off-white/80 backdrop-blur-md pt-12 pb-2 border-b border-slate-200/50">
+<div class="flex items-center px-4 justify-between h-14">
+<div class="flex items-center gap-3">
+<button onclick="switchPage('teams')" class="flex items-center justify-center size-10 rounded-full hover:bg-black/5 transition-colors">
+<span class="material-symbols-outlined text-2xl text-slate-600">arrow_back_ios_new</span>
+</button>
+<div class="flex flex-col">
+<h2 class="text-lg font-bold leading-tight tracking-tight text-slate-900">Alpha Business</h2>
+<p class="text-primary text-[11px] font-semibold flex items-center gap-1.5 uppercase tracking-wide">
+<span class="size-1.5 bg-primary rounded-full animate-pulse"></span>5 Members • 3 Online</p>
+</div>
+</div>
+<div class="flex items-center gap-1">
+<button class="flex items-center justify-center size-10 rounded-full hover:bg-black/5">
+<span class="material-symbols-outlined text-2xl text-slate-600">info</span>
+</button>
+</div>
+</div>
+<div class="flex items-center gap-3 px-4 py-3 overflow-x-auto no-scrollbar">
+<button class="flex shrink-0 items-center justify-center px-4 h-9 bg-primary text-white rounded-full gap-2 text-xs font-bold transition-transform active:scale-95 shadow-sm">
+<span class="material-symbols-outlined text-lg fill-1">video_camera_front</span>
+<span>Zoom</span>
+</button>
+<button class="flex shrink-0 items-center justify-center px-4 h-9 bg-white/60 border border-slate-200 text-slate-700 rounded-full gap-2 text-xs font-bold transition-transform active:scale-95">
+<span class="material-symbols-outlined text-lg">edit_note</span>
+<span>Canva</span>
+</button>
+<button class="flex shrink-0 items-center justify-center px-4 h-9 bg-white/60 border border-slate-200 text-slate-700 rounded-full gap-2 text-xs font-bold transition-transform active:scale-95">
+<span class="material-symbols-outlined text-lg">folder_open</span>
+<span>Drive</span>
+</button>
+<button class="flex shrink-0 items-center justify-center size-9 bg-white/60 border border-slate-200 text-slate-700 rounded-full transition-transform active:scale-95">
+<span class="material-symbols-outlined text-lg">add</span>
+</button>
+</div>
+</header>
+<main class="flex-1 overflow-y-auto px-4 py-6 space-y-6">
+<div class="flex flex-col items-center gap-2">
+<p class="text-[10px] uppercase tracking-widest text-slate-400 font-bold">Today, 10:45 AM</p>
+<div class="bg-accent-amber/5 border border-accent-amber/10 rounded-full px-4 py-1.5">
+<p class="text-[10px] text-accent-amber font-bold text-center uppercase tracking-widest flex items-center gap-2">
+<span class="material-symbols-outlined text-[14px]">alarm</span>Competition deadline in 3 days</p>
+</div>
+</div>
+<div class="flex items-end gap-2.5">
+<div class="size-8 rounded-full bg-center bg-no-repeat bg-cover flex-shrink-0 border border-slate-200 shadow-sm" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDAG4myV0AQC1tkbJKw7joJlknzPP6-Tn4JXiAYyXivMOTxetaYsd-LnOK4fT83L9Rr5-JBN5229S04F4FQiO1CAzREqrDSBHG7sKKYASgJvC-j1n6aeVvaYdBDRMC2hjdJxSDt8GNkPgNa9qIyywNCZwVs7JxtItXlrx9qwdqb6WFKXKZbbR9Qy9XRAhAZ-1Ai8A5r5vRGymehUev0RxnOEeVWBk8uCiSyUjfA5j0Y6RdbkPyIL9FmE0pDjsxvP6gubqiz14qGQE8");'></div>
+<div class="flex flex-col gap-0.5 max-w-[75%]">
+<p class="text-slate-500 text-[11px] font-bold ml-2">Sarah</p>
+<div class="bg-sage-green text-slate-800 px-4 py-2.5 rounded-2xl rounded-bl-none message-shadow border border-black/5">
+<p class="text-[14px] leading-relaxed">Hey <span class="text-primary font-bold">@team</span>, did we finish the executive summary? I need to start the Canva slides.</p>
+</div>
+<p class="text-[9px] text-slate-400 ml-2 mt-0.5">10:48 AM</p>
+</div>
+</div>
+<div class="flex items-end gap-2.5 justify-end">
+<div class="flex flex-col gap-0.5 items-end max-w-[75%]">
+<div class="bg-dusty-blue text-slate-800 px-4 py-2.5 rounded-2xl rounded-br-none message-shadow border border-black/5">
+<p class="text-[14px] leading-relaxed">Almost done, just adding the financial charts from the spreadsheet.</p>
+</div>
+<div class="flex items-center gap-1.5 mt-0.5 mr-2">
+<p class="text-[9px] text-slate-400 uppercase font-bold tracking-tighter">10:50 AM</p>
+<span class="material-symbols-outlined text-primary text-[14px] font-bold">done_all</span>
+</div>
+</div>
+<div class="size-8 rounded-full bg-center bg-no-repeat bg-cover flex-shrink-0 border border-slate-200 shadow-sm" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBhpJiG5Z0BPBlpDEHSlBOr1S-Aowt2pKnlGvt0SBcF1aLZ1sgdldt-5bHU6uaBmefVSvYLU1aGK3FSn6UJyEJ0zxS8QLV_7dyTndJ5jBl3T6YKZfSbAY0htXDqkydhpIhOaY8XLy24rM0BlCYIKDuGuEbS5hnMNtyluvdc3cEUbS-kSFwpFx2UqbR3PRuqIM2bpd2WFp-dsHTgfUtP4RYNDNUwH4mQKNdCBkwB5VE9mSaIxo00gweXD-YDTiSZ-ojtB28K8uXhlQk");'></div>
+</div>
+<div class="flex items-end gap-2.5 justify-end -mt-3">
+<div class="flex flex-col gap-1 items-end w-60">
+<div class="bg-white/40 border border-slate-200 p-2.5 rounded-2xl rounded-br-none w-full flex items-center gap-3 backdrop-blur-sm">
+<div class="size-10 bg-dusty-blue rounded-xl flex items-center justify-center text-slate-600">
+<span class="material-symbols-outlined text-2xl">description</span>
+</div>
+<div class="flex-1 overflow-hidden">
+<p class="text-[12px] font-bold text-slate-800 truncate">Fin_Report_V2.pdf</p>
+<p class="text-[10px] text-slate-500">1.2 MB • PDF</p>
+</div>
+<span class="material-symbols-outlined text-slate-400 text-xl mr-1">download</span>
+</div>
+</div>
+<div class="size-8 opacity-0"></div>
+</div>
+<div class="flex items-end gap-2.5">
+<div class="size-8 rounded-full bg-center bg-no-repeat bg-cover flex-shrink-0 border border-slate-200 shadow-sm" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBKDAZrQ0tEgANVuKEiqANu4mbc2ub3XngbL7isxbfT6QNf61j67BFuZmWF_LS3D1RlXycVEz0p82XU8M3qORW9FThqoxYmV5f2ox4XIgX6FHKosqCgV9laTbj2IPzbar_gfsfH-cOUYdyffk-KsWZBDWY74L5fah7WmJVml0YoSUZzPZ1wfr6AjelBepFNF3z-nJ_EMkliHre0X3nUAVqgSQE2p4042CaXnDx-LpE-Z3JsC0cvszA0CalseekmY3gAcT-Ogk3Ykuc");'></div>
+<div class="flex flex-col gap-0.5 max-w-[75%]">
+<p class="text-slate-500 text-[11px] font-bold ml-2">David</p>
+<div class="bg-sage-green text-slate-800 px-4 py-2.5 rounded-2xl rounded-bl-none message-shadow border border-black/5">
+<p class="text-[14px] leading-relaxed">Great work. I've updated the competitor analysis section too. Ready for review.</p>
+</div>
+<p class="text-[9px] text-slate-400 ml-2 mt-0.5">11:02 AM</p>
+</div>
+</div>
+</main>
+<footer class="sticky bottom-0 bg-warm-off-white/90 backdrop-blur-md px-4 pt-3 pb-24 border-t border-slate-200/50">
+<div class="flex items-center gap-3">
+<button class="flex items-center justify-center size-10 rounded-full bg-slate-200/50 text-slate-500 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-2xl">add_circle</span>
+</button>
+<div class="flex-1 relative">
+<input class="w-full bg-white/80 border border-slate-200 rounded-full px-5 py-2.5 text-[14px] focus:ring-1 focus:ring-primary focus:border-primary placeholder:text-slate-400" placeholder="Message Alpha Business..." type="text"/>
+<div class="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
+<span class="material-symbols-outlined text-slate-400 text-xl cursor-pointer hover:text-primary">sticky_note_2</span>
+</div>
+</div>
+<button class="flex items-center justify-center size-10 rounded-full bg-primary text-white shadow-md shadow-primary/20 transition-transform active:scale-90">
+<span class="material-symbols-outlined text-2xl fill-1">send</span>
+</button>
+</div>
+<div class="mt-4 flex justify-center">
+<div class="w-32 h-1.5 bg-slate-300 rounded-full opacity-40"></div>
+</div>
+</footer>
+</div>
+
+<div id="ai-page" class="page text-notepad-ink antialiased grainy-texture min-h-screen">
+<div class="flex flex-col h-screen max-w-md mx-auto relative overflow-hidden bg-warm-paper border-x border-soft-border">
+<header class="flex flex-col px-6 pt-10 pb-4 gap-2 bg-warm-paper/90 backdrop-blur-md sticky top-0 z-40">
+<div class="flex items-center justify-between">
+<button onclick="switchPage('teams')" class="flex items-center justify-center -ml-2 p-2 rounded-full hover:bg-warm-accent transition-colors">
+<span class="material-symbols-outlined text-xl">arrow_back_ios_new</span>
+</button>
+<div class="flex gap-4">
+<button class="flex items-center justify-center p-2 rounded-full hover:bg-warm-accent">
+<span class="material-symbols-outlined text-xl">bookmark_add</span>
+</button>
+<button class="flex items-center justify-center p-2 rounded-full hover:bg-warm-accent">
+<span class="material-symbols-outlined text-xl">more_horiz</span>
+</button>
+</div>
+</div>
+<div class="flex flex-col mt-2">
+<h1 class="text-3xl font-serif italic tracking-tight">Timify Assistant</h1>
+<div class="flex items-center gap-2 mt-1">
+<span class="text-[10px] font-display font-medium uppercase tracking-[0.2em] text-primary-clay/70">Context: Global Competitions</span>
+</div>
+</div>
+</header>
+<main class="flex-1 overflow-y-auto custom-scrollbar flex flex-col gap-8 px-6 pt-4 pb-20">
+<div class="p-5 bg-warm-accent/40 rounded-3xl border border-soft-border flex flex-col gap-4">
+<div class="flex justify-between items-baseline">
+<span class="text-xs font-display font-semibold uppercase tracking-wider text-primary-clay">Query Quota</span>
+<span class="text-[11px] font-medium opacity-50 italic">5 of 20 used today</span>
+</div>
+<div class="h-[1px] w-full bg-notepad-ink/10">
+<div class="h-full bg-primary-clay" style="width: 25%;"></div>
+</div>
+<p class="text-[11px] opacity-40 leading-relaxed">Intelligence usage resets in 6 hours. Consider each prompt carefully to maximize results.</p>
+</div>
+<div class="flex flex-col gap-10">
+<div class="flex flex-col gap-3 max-w-[90%]">
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-primary-clay"></div>
+<span class="text-[10px] font-display font-bold uppercase tracking-widest text-primary-clay">Timify AI</span>
+</div>
+<div class="relative bg-white/40 p-5 rounded-2xl rounded-tl-none border border-soft-border shadow-sm">
+<p class="text-sm leading-relaxed font-sans font-medium text-notepad-ink/90">Welcome back. I've indexed the latest rules for the <span class="border-b border-primary-clay/30">Sustainable Future Global Challenge</span>. How shall we begin today's collaboration?</p>
+</div>
+</div>
+<div class="flex flex-col items-end gap-3 max-w-[90%] self-end">
+<div class="flex items-center gap-2 flex-row-reverse">
+<div class="w-5 h-5 rounded-full bg-center bg-cover border border-warm-accent" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDXfL6u4HjOZp_7XLwjeAuMr-lgKY0yJFP_PdVYJ_KBkFj16w0RIwHGu3atolHHf8Tr7X-g-N6lSJlgGIIybsJ9s8mapkQ1cq049TNFB8386tZjapLXtJ6ZBzyyUQ0M5iZxilIVlxE_7Enw04a1R9i6FgNR5pl5SbYLJAn6Y-Byo-kCOFsW0g1gLsmNRtKsfDsMI8cXOMON2490UwNJPZybd4ma8f2tBEN9T1HoeP1MwWy3i1H7FszjGAeD6_cxFZXWSoiSvygz7Iw');"></div>
+<span class="text-[10px] font-display font-bold uppercase tracking-widest opacity-30">Student</span>
+</div>
+<div class="bg-primary-clay/10 p-5 rounded-2xl rounded-tr-none border border-primary-clay/5">
+<p class="text-sm leading-relaxed font-sans font-medium italic text-primary-clay">I need help brainstorming a project name for our sustainability competition entry. Something that sounds professional yet innovative.</p>
+</div>
+</div>
+<div class="flex gap-1 items-center px-1">
+<div class="w-1 h-1 rounded-full bg-primary-clay/40 animate-pulse"></div>
+<div class="w-1 h-1 rounded-full bg-primary-clay/40 animate-pulse" style="animation-delay: 0.2s;"></div>
+<div class="w-1 h-1 rounded-full bg-primary-clay/40 animate-pulse" style="animation-delay: 0.4s;"></div>
+</div>
+</div>
+</main>
+<footer class="bg-warm-paper/90 backdrop-blur-md px-6 pb-10 pt-4 border-t border-soft-border">
+<div class="flex gap-2 overflow-x-auto pb-5 no-scrollbar -mx-6 px-6">
+<button class="flex h-9 items-center gap-2 rounded-full bg-white border border-soft-border px-4 hover:bg-warm-accent transition-colors shrink-0">
+<span class="text-[11px] font-display font-bold uppercase tracking-tighter">Summarize rules</span>
+</button>
+<button class="flex h-9 items-center gap-2 rounded-full bg-white border border-soft-border px-4 hover:bg-warm-accent transition-colors shrink-0">
+<span class="text-[11px] font-display font-bold uppercase tracking-tighter">Brainstorm ideas</span>
+</button>
+<button class="flex h-9 items-center gap-2 rounded-full bg-white border border-soft-border px-4 hover:bg-warm-accent transition-colors shrink-0">
+<span class="text-[11px] font-display font-bold uppercase tracking-tighter">Review draft</span>
+</button>
+</div>
+<div class="relative flex items-end gap-3 bg-white/60 border border-soft-border rounded-[2rem] p-2 pl-4 shadow-sm focus-within:bg-white transition-all">
+<textarea class="flex-1 bg-transparent border-none focus:ring-0 text-sm py-2 max-h-32 resize-none placeholder:text-notepad-ink/30 font-sans" placeholder="Write your thought..." rows="1"></textarea>
+<div class="flex items-center gap-1">
+<button class="p-2 text-notepad-ink/40 hover:text-primary-clay transition-colors">
+<span class="material-symbols-outlined text-xl">attach_file</span>
+</button>
+<button class="size-10 rounded-full bg-primary-clay text-warm-paper flex items-center justify-center hover:bg-primary-clay/90 transition-all active:scale-95">
+<span class="material-symbols-outlined text-xl">north</span>
+</button>
+</div>
+</div>
+</footer>
+</div>
+</div>
+
+<div id="business-page" class="page" style="background-color: var(--cream); color: var(--charcoal); font-family: 'Montserrat', sans-serif;">
+    <div class="relative flex h-screen max-w-[430px] mx-auto flex-col overflow-hidden grainy-bg">
+        <header class="sticky top-0 z-30 px-6 py-4 flex items-center justify-between backdrop-blur-md border-bottom" style="border-bottom: 1px solid rgba(26, 26, 26, 0.08); background-color: rgba(253, 252, 248, 0.85);">
+            <div>
+                <p class="text-[10px] uppercase tracking-[0.2em] font-bold" style="color: var(--accent-sage);">Timify Studio</p>
+                <h1 class="serif text-3xl leading-none mt-0.5">Business Hub</h1>
+            </div>
+            <div class="flex gap-4">
+                <button class="text-[var(--charcoal)]"><span class="material-symbols-outlined font-light">search</span></button>
+                <div class="size-8 rounded-full overflow-hidden border" style="border-color: rgba(26, 26, 26, 0.08);">
+                    <img alt="Profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBw0I3dEOXjJ8OdJTM9S-N4HD_jzXPQeVsq0ta6_8V64_oiV4g0CaONWAZJEyvPA0eKCkecNkJawReP1pzn_kjrdh6EI0DwsknF9r-irgW4rBZ1hOpS4bYGzRRws7Mu2EfjmrxuGGk1PKS1YURtF-KS6epTgnBXGGbAZa8ILZ6-KRbJn35RJfw-DKAFbssse6hjMSrRKv7oIgyZIx_yVTlcO4GzeMOaWbBDp8x2K7Tt7yDKJzLqyYgEk8Ox_f7Nxo0QXLAGLkCGCSg"/>
+                </div>
+            </div>
+        </header>
+        <main class="flex-1 overflow-y-auto px-6 py-8 space-y-10 hide-scrollbar pb-28">
+<section>
+<div class="flex items-baseline justify-between mb-6">
+<h2 class="serif text-2xl">Market Pulse</h2>
+<div class="flex items-center gap-1.5">
+<span class="size-1.5 rounded-full" style="background-color: var(--accent-sage);"></span>
+<span class="text-[10px] uppercase tracking-wider font-semibold opacity-60">Live NYSE</span>
+</div>
+</div>
+<div class="flex gap-4 overflow-x-auto hide-scrollbar -mx-6 px-6">
+<div class="min-w-[280px] grainy-panel rounded-2xl p-6 relative overflow-hidden">
+<div class="flex justify-between items-start mb-4">
+<div>
+<p class="text-[10px] uppercase tracking-widest font-bold opacity-50 mb-1">Standard &amp; Poor's</p>
+<h3 class="text-2xl font-light tracking-tight">4,500.20</h3>
+</div>
+<span class="text-xs font-medium" style="color: var(--accent-sage);">+0.45%</span>
+</div>
+<div class="h-16 w-full opacity-80">
+<svg class="w-full h-full" preserveAspectRatio="none" viewBox="0 0 100 40">
+<path d="M0 35 Q15 32 25 34 T45 20 T65 25 T85 10 L100 15" fill="none" stroke="var(--accent-sage)" stroke-width="1.5"></path>
+<path d="M0 35 Q15 32 25 34 T45 20 T65 25 T85 10 L100 15 V40 H0 Z" fill="rgba(142, 155, 142, 0.05)"></path>
+</svg>
+</div>
+</div>
+<div class="min-w-[280px] grainy-panel rounded-2xl p-6 relative overflow-hidden">
+<div class="flex justify-between items-start mb-4">
+<div>
+<p class="text-[10px] uppercase tracking-widest font-bold opacity-50 mb-1">NASDAQ 100</p>
+<h3 class="text-2xl font-light tracking-tight">14,890.30</h3>
+</div>
+<span class="text-xs font-medium" style="color: var(--accent-rose);">-0.12%</span>
+</div>
+<div class="h-16 w-full opacity-80">
+<svg class="w-full h-full" preserveAspectRatio="none" viewBox="0 0 100 40">
+<path d="M0 15 Q20 20 40 10 T60 30 T80 20 T100 38" fill="none" stroke="var(--accent-rose)" stroke-width="1.5"></path>
+<path d="M0 15 Q20 20 40 10 T60 30 T80 20 T100 38 V40 H0 Z" fill="rgba(196, 155, 155, 0.05)"></path>
+</svg>
+</div>
+</div>
+</div>
+</section>
+<section>
+<h2 class="serif text-2xl mb-6">Collaboration</h2>
+<div class="grid grid-cols-3 gap-4">
+<div class="flex flex-col items-center gap-3">
+<div class="size-16 dark-panel rounded-full flex items-center justify-center shadow-md">
+<span class="material-symbols-outlined text-2xl" style="color: var(--accent-gold);">auto_fix_high</span>
+</div>
+<span class="text-[11px] font-bold tracking-wider uppercase opacity-60 text-center leading-tight">Design<br/>Studio</span>
+</div>
+<div class="flex flex-col items-center gap-3">
+<div class="size-16 dark-panel rounded-full flex items-center justify-center shadow-md">
+<span class="material-symbols-outlined text-2xl" style="color: var(--accent-sage);">folder_shared</span>
+</div>
+<span class="text-[11px] font-bold tracking-wider uppercase opacity-60 text-center leading-tight">Shared<br/>Drive</span>
+</div>
+<div class="flex flex-col items-center gap-3">
+<div class="size-16 dark-panel rounded-full flex items-center justify-center shadow-md">
+<span class="material-symbols-outlined text-2xl" style="color: var(--accent-rose);">forum</span>
+</div>
+<span class="text-[11px] font-bold tracking-wider uppercase opacity-60 text-center leading-tight">Team<br/>Sync</span>
+</div>
+</div>
+</section>
+<section>
+<div class="flex items-baseline justify-between mb-6">
+<h2 class="serif text-2xl">Shared Assets</h2>
+<button class="text-[10px] uppercase tracking-widest font-bold border-b pb-0.5" style="border-color: var(--charcoal);">Explore All</button>
+</div>
+<div class="space-y-4">
+<div class="flex items-center gap-4 p-4 grainy-panel rounded-xl">
+<div class="size-10 flex items-center justify-center" style="background-color: var(--cream); border: 1px solid rgba(26, 26, 26, 0.08);">
+<span class="material-symbols-outlined font-light" style="color: var(--charcoal);">article</span>
+</div>
+<div class="flex-1 overflow-hidden">
+<h4 class="text-sm font-semibold truncate">Market_Analysis_24.pdf</h4>
+<p class="text-[10px] uppercase tracking-tighter opacity-40">M. Chen • 2h ago</p>
+</div>
+<span class="material-symbols-outlined text-sm opacity-30">more_horiz</span>
+</div>
+<div class="flex items-center gap-4 p-4 grainy-panel rounded-xl">
+<div class="size-10 flex items-center justify-center" style="background-color: var(--cream); border: 1px solid rgba(26, 26, 26, 0.08);">
+<span class="material-symbols-outlined font-light" style="color: var(--charcoal);">table_view</span>
+</div>
+<div class="flex-1 overflow-hidden">
+<h4 class="text-sm font-semibold truncate">Q3_Revenue_Model.xlsx</h4>
+<p class="text-[10px] uppercase tracking-tighter opacity-40">A. Wong • Yesterday</p>
+</div>
+<span class="material-symbols-outlined text-sm opacity-30">more_horiz</span>
+</div>
+<div class="flex items-center gap-4 p-4 grainy-panel rounded-xl">
+<div class="size-10 flex items-center justify-center" style="background-color: var(--cream); border: 1px solid rgba(26, 26, 26, 0.08);">
+<span class="material-symbols-outlined font-light" style="color: var(--charcoal);">layers</span>
+</div>
+<div class="flex-1 overflow-hidden">
+<h4 class="text-sm font-semibold truncate">Pitch_Deck_Final.key</h4>
+<p class="text-[10px] uppercase tracking-tighter opacity-40">Sarah J. • 3 days ago</p>
+</div>
+<span class="material-symbols-outlined text-sm opacity-30">more_horiz</span>
+</div>
+</div>
+</section>
+<section class="p-6 rounded-3xl border" style="background-color: var(--charcoal); color: var(--cream); border-color: rgba(184, 156, 109, 0.20);">
+<div class="flex items-center gap-3 mb-3">
+<span class="material-symbols-outlined" style="color: var(--accent-gold);">notification_important</span>
+<p class="text-[10px] uppercase tracking-[0.2em] font-bold" style="color: var(--accent-gold);">Deadline Alert</p>
+</div>
+<p class="serif text-lg leading-snug">Submission for Case Study Phase 1 is due in 14 hours. Please ensure final review.</p>
+</section>
+</main>
+<button class="fixed right-6 bottom-24 size-14 dark-panel text-[var(--cream)] rounded-full shadow-2xl flex items-center justify-center z-40 ring-1 ring-white/10 active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-3xl font-light">add</span>
+</button>
+</div>
+</div>
+
+<div class="bottom-nav">
+<div class="nav-item" onclick="switchPage('welcome')" data-page="welcome">
+<span class="material-symbols-outlined nav-icon">home</span>
+<span class="nav-label">Welcome</span>
+</div>
+<div class="nav-item active" onclick="switchPage('teams')" data-page="teams">
+<span class="material-symbols-outlined nav-icon">groups</span>
+<span class="nav-label">Teams</span>
+</div>
+<div class="nav-item" onclick="switchPage('chat')" data-page="chat">
+<span class="material-symbols-outlined nav-icon">forum</span>
+<span class="nav-label">Chat</span>
+</div>
+<div class="nav-item" onclick="switchPage('ai')" data-page="ai">
+<span class="material-symbols-outlined nav-icon">psychology</span>
+<span class="nav-label">AI</span>
+</div>
+<div class="nav-item" onclick="switchPage('business')" data-page="business">
+<span class="material-symbols-outlined nav-icon">analytics</span>
+<span class="nav-label">Business</span>
+</div>
+</div>
+</div>
+
+<script>
+function switchPage(pageName) {
+    document.querySelectorAll('.page').forEach(page => {
+        page.classList.remove('active');
+    });
+    const targetPage = document.getElementById(pageName + '-page');
+    if (targetPage) {
+        targetPage.classList.add('active');
+    }
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.classList.remove('active');
+        if (item.dataset.page === pageName) {
+            item.classList.add('active');
+        }
+    });
+    window.scrollTo(0, 0);
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const navItems = document.querySelectorAll('.nav-item');
+    navItems.forEach(item => {
+        item.addEventListener('click', function() {
+            const pageName = this.dataset.page;
+            if (pageName) {
+                switchPage(pageName);
+            }
+        });
+    });
+});
+</script>
+</body></html>
